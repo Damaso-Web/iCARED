@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iCARE · BSU Guidance &amp; Counseling</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --forest:#0e2d1e;--pine:#164d30;--moss:#1e6e43;--fern:#2e9458;
+      --sage:#5ab87a;--mint:#a8d8b8;--mist:#dff0e7;--foam:#f0f8f3;
+      --gold:#e8b422;--red:#d63d3d;--red-lt:#fde8e8;
+      --amber:#c97020;--amber-lt:#fef0dc;--blue:#2a6fc9;--blue-lt:#ddeeff;
+      --ink:#0f1a13;--slate:#3a4a3f;--stone:#6b7e72;--fog:#a0afa6;
+      --silver:#d4ddd7;--cloud:#eef2ef;--snow:#f8faf9;--white:#fff;
+      --r-xs:4px;--r-sm:8px;--r:12px;--r-lg:16px;--r-xl:24px;
+      --sh-xs:0 1px 2px rgba(0,0,0,.06);
+      --sh-sm:0 2px 8px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.05);
+      --sh:0 4px 16px rgba(0,0,0,.09),0 2px 4px rgba(0,0,0,.06);
+      --sh-lg:0 12px 40px rgba(0,0,0,.14),0 4px 8px rgba(0,0,0,.08);
+      --sb-w:238px;--top-h:58px;
+      --font:'DM Sans',sans-serif;--serif:'Instrument Serif',serif;--mono:'DM Mono',monospace;
+      --ease:cubic-bezier(.4,0,.2,1);
+    }
+    html{height:100%;overflow:hidden}
+    body{height:100%;font-family:var(--font);font-size:14px;color:var(--ink);background:var(--snow);overflow:hidden;-webkit-font-smoothing:antialiased}
+
+    .screen{display:none;height:100dvh;height:100vh}
+    .screen.active{display:flex}
+
+    #screen-login{background:var(--forest);align-items:center;justify-content:center;position:relative;overflow:auto;padding:16px}
+    #screen-login::before{content:'';position:absolute;inset:0;pointer-events:none;
+      background:radial-gradient(ellipse 60% 50% at 15% 85%,rgba(46,148,88,.2) 0%,transparent 60%),
+                 radial-gradient(ellipse 40% 50% at 85% 15%,rgba(232,180,34,.09) 0%,transparent 55%)}
+
+    .login-box{position:relative;z-index:1;display:grid;grid-template-columns:360px 400px;
+      background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);
+      border-radius:var(--r-xl);overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,.55);
+      width:100%;max-width:760px}
+
+    .lp{padding:44px 40px;background:linear-gradient(150deg,rgba(46,148,88,.14) 0%,rgba(10,30,18,.28) 100%);
+      border-right:1px solid rgba(255,255,255,.05);display:flex;flex-direction:column}
+    .lp-logo{display:flex;align-items:center;gap:11px;margin-bottom:40px}
+    .lp-mark{width:36px;height:36px;background:var(--gold);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;
+      font-family:var(--serif);font-style:italic;font-size:16px;color:var(--forest);box-shadow:0 4px 14px rgba(232,180,34,.35);flex-shrink:0}
+    .lp-name{font-size:19px;font-weight:600;color:#fff;letter-spacing:-.3px}
+    .lp-hl{font-family:var(--serif);font-style:italic;font-size:32px;line-height:1.15;color:#fff;margin-bottom:14px}
+    .lp-hl em{color:var(--sage);font-style:normal}
+    .lp-desc{font-size:12.5px;color:rgba(255,255,255,.42);line-height:1.75;margin-bottom:32px}
+    .lp-feats{display:flex;flex-direction:column;gap:9px;flex:1}
+    .lp-feat{display:flex;align-items:center;gap:9px;font-size:12px;color:rgba(255,255,255,.58)}
+    .lp-dot{width:5px;height:5px;border-radius:50%;background:var(--sage);flex-shrink:0}
+    .lp-foot{font-size:9.5px;color:rgba(255,255,255,.18);margin-top:28px;letter-spacing:.5px;text-transform:uppercase}
+
+    .lf{padding:44px 40px;background:#fff;display:flex;flex-direction:column;justify-content:center}
+    .lf h2{font-size:24px;font-weight:600;color:var(--ink);margin-bottom:4px;letter-spacing:-.3px}
+    .lf .sub{font-size:13px;color:var(--stone);margin-bottom:28px}
+    .lf-field{margin-bottom:16px}
+    .lf-lbl{display:block;font-size:10.5px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--slate);margin-bottom:6px}
+    .lf-in,.lf-sel{width:100%;border:1.5px solid var(--silver);border-radius:var(--r-sm);
+      padding:11px 13px;font-family:var(--font);font-size:13.5px;color:var(--ink);
+      background:var(--snow);outline:none;transition:border-color .15s,box-shadow .15s}
+    .lf-in:focus,.lf-sel:focus{border-color:var(--moss);background:#fff;box-shadow:0 0 0 3px rgba(30,110,67,.1)}
+    .lf-sel{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7e72' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat:no-repeat;background-position:right 12px center;background-color:var(--snow);padding-right:32px;cursor:pointer}
+    .lf-sel:focus{background-color:#fff}
+    .btn-signin{width:100%;padding:12px 16px;background:var(--moss);color:#fff;border:none;border-radius:var(--r-sm);
+      font-family:var(--font);font-size:14px;font-weight:600;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;gap:8px;
+      transition:background .15s,box-shadow .15s,transform .1s;margin-top:4px}
+    .btn-signin:hover{background:var(--pine);box-shadow:0 6px 20px rgba(30,110,67,.28);transform:translateY(-1px)}
+    .btn-signin:active{transform:translateY(0)}
+    .login-note{font-size:11px;color:var(--fog);text-align:center;margin-top:16px}
+
+    #screen-app{flex-direction:row;overflow:hidden}
+
+    .mob-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:40}
+    .mob-overlay.show{display:block}
+
+    .sidebar{width:var(--sb-w);flex-shrink:0;background:var(--forest);display:flex;flex-direction:column;
+      height:100dvh;height:100vh;position:relative;overflow:hidden;
+      transition:transform .25s var(--ease);z-index:50}
+    .sidebar::after{content:'';position:absolute;inset:0;pointer-events:none;
+      background:radial-gradient(ellipse 80% 40% at 50% 100%,rgba(46,148,88,.07) 0%,transparent 55%)}
+
+    .sb-head{padding:18px 16px 14px;border-bottom:1px solid rgba(255,255,255,.05);display:flex;align-items:center;gap:9px;flex-shrink:0}
+    .sb-mark{width:30px;height:30px;background:var(--gold);border-radius:var(--r-xs);display:flex;align-items:center;justify-content:center;
+      font-family:var(--serif);font-style:italic;font-size:13px;color:var(--forest);flex-shrink:0;box-shadow:0 2px 8px rgba(232,180,34,.25)}
+    .sb-brand{font-size:14px;font-weight:600;color:#fff}
+    .sb-sub{font-size:9px;color:rgba(255,255,255,.22);letter-spacing:.5px;text-transform:uppercase;margin-top:1px}
+    .sb-close{display:none;margin-left:auto;background:none;border:none;color:rgba(255,255,255,.4);cursor:pointer;padding:4px;border-radius:5px}
+    .sb-close svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+    .sb-nav{flex:1;overflow-y:auto;padding:8px 8px 0}
+    .sb-nav::-webkit-scrollbar{display:none}
+    .sb-sec{font-size:9px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:rgba(255,255,255,.2);padding:14px 8px 4px}
+
+    .nb{display:flex;align-items:center;gap:8px;width:100%;padding:9px 10px;border-radius:var(--r-sm);
+      border:none;background:none;cursor:pointer;color:rgba(255,255,255,.44);font-family:var(--font);
+      font-size:13px;font-weight:400;text-align:left;transition:background .12s,color .12s;
+      margin-bottom:1px;position:relative}
+    .nb .ni{width:16px;height:16px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+    .nb:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.78)}
+    .nb.active{background:rgba(90,184,122,.12);color:var(--sage);font-weight:500}
+    .nb.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:18px;background:var(--sage);border-radius:0 3px 3px 0}
+    .nb-badge{margin-left:auto;background:var(--red);color:#fff;font-size:9.5px;font-weight:700;
+      min-width:17px;height:17px;padding:0 4px;border-radius:9px;display:none;align-items:center;justify-content:center}
+    .nb-badge.on{display:flex}
+
+    .sb-foot{padding:10px;border-top:1px solid rgba(255,255,255,.05);flex-shrink:0}
+    .u-row{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--r-sm);background:rgba(255,255,255,.04)}
+    .u-av{width:28px;height:28px;border-radius:50%;background:var(--moss);color:#fff;display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:700;flex-shrink:0}
+    .u-nm{font-size:12px;font-weight:500;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .u-rl{font-size:9.5px;color:rgba(255,255,255,.28)}
+    .logbtn{margin-left:auto;flex-shrink:0;background:none;border:none;color:rgba(255,255,255,.24);cursor:pointer;padding:4px;border-radius:5px;display:flex;transition:color .12s,background .12s}
+    .logbtn:hover{color:rgba(255,255,255,.6);background:rgba(255,255,255,.08)}
+    .logbtn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+
+    .main{flex:1;display:flex;flex-direction:column;overflow:hidden;height:100dvh;height:100vh;min-width:0}
+
+    .topbar{height:var(--top-h);flex-shrink:0;background:#fff;border-bottom:1px solid var(--cloud);
+      display:flex;align-items:center;padding:0 18px;gap:10px;box-shadow:var(--sh-xs);position:relative;z-index:10}
+    .mob-btn{display:none;background:none;border:none;color:var(--slate);cursor:pointer;padding:6px;border-radius:var(--r-sm);flex-shrink:0}
+    .mob-btn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .breadcrumb{font-size:13px;color:var(--fog);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .breadcrumb strong{color:var(--ink);font-weight:500}
+    .tb-right{margin-left:auto;display:flex;align-items:center;gap:7px;flex-shrink:0}
+
+    .content{flex:1;overflow-y:auto;overflow-x:hidden;background:var(--cloud);-webkit-overflow-scrolling:touch}
+    .content::-webkit-scrollbar{width:4px}
+    .content::-webkit-scrollbar-thumb{background:var(--silver);border-radius:2px}
+
+    .page{display:none;height:100%}
+    .page.active{display:flex;flex-direction:column;animation:fadeUp .22s var(--ease)}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+    .pi{padding:22px}
+
+    .ph{margin-bottom:20px}
+    .ph h1{font-family:var(--serif);font-style:italic;font-size:26px;color:var(--forest);font-weight:400;margin-bottom:3px;line-height:1.2}
+    .ph p{font-size:13px;color:var(--stone)}
+
+    .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 15px;border-radius:var(--r-sm);border:none;
+      font-family:var(--font);font-size:13px;font-weight:500;cursor:pointer;
+      transition:background .13s,box-shadow .13s,transform .1s;white-space:nowrap}
+    .btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+    .btn-p{background:var(--moss);color:#fff}
+    .btn-p:hover{background:var(--pine);box-shadow:0 4px 12px rgba(30,110,67,.25)}
+    .btn-o{background:#fff;border:1.5px solid var(--silver);color:var(--slate)}
+    .btn-o:hover{border-color:var(--sage);color:var(--moss);background:var(--foam)}
+    .btn-g{background:transparent;color:var(--stone)}
+    .btn-g:hover{background:var(--cloud);color:var(--ink)}
+    .btn-d{background:var(--red-lt);color:var(--red)}
+    .btn-d:hover{background:#fcd5d5}
+    .btn-sm{padding:6px 11px;font-size:12px}
+
+    .card{background:#fff;border-radius:var(--r-lg);border:1px solid rgba(0,0,0,.05);box-shadow:var(--sh-sm);overflow:hidden}
+    .ch{padding:14px 18px;border-bottom:1px solid var(--cloud);display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .ct{font-size:13.5px;font-weight:600;color:var(--ink)}
+    .cb{padding:18px}
+
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+    .stat{background:#fff;border-radius:var(--r-lg);padding:18px;border:1px solid rgba(0,0,0,.05);box-shadow:var(--sh-xs);transition:transform .15s,box-shadow .15s}
+    .stat:hover{transform:translateY(-2px);box-shadow:var(--sh-sm)}
+    .st{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+    .si{width:36px;height:36px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center}
+    .si svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+    .sp{font-size:10px;font-weight:600;color:var(--stone);background:var(--cloud);padding:2px 7px;border-radius:20px;white-space:nowrap}
+    .sn{font-family:var(--serif);font-style:italic;font-size:32px;color:var(--ink);line-height:1;margin-bottom:3px}
+    .sl{font-size:11.5px;color:var(--stone);font-weight:500}
+
+    .ts{overflow-x:auto;-webkit-overflow-scrolling:touch}
+    table{width:100%;border-collapse:collapse;min-width:540px}
+    thead th{padding:9px 16px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--fog);background:var(--snow);border-bottom:1px solid var(--cloud);white-space:nowrap}
+    tbody tr{border-bottom:1px solid var(--cloud);transition:background .1s}
+    tbody tr:last-child{border-bottom:none}
+    tbody tr:hover{background:var(--foam)}
+    tbody td{padding:12px 16px;font-size:13px;color:var(--slate);vertical-align:middle}
+
+    .badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
+    .bh{background:var(--red-lt);color:var(--red)}
+    .bm{background:var(--amber-lt);color:var(--amber)}
+    .bl{background:var(--mist);color:var(--moss)}
+    .bp{background:var(--amber-lt);color:var(--amber)}
+    .bsc{background:var(--blue-lt);color:var(--blue)}
+    .bco{background:var(--mist);color:var(--moss)}
+    .br{background:var(--cloud);color:var(--stone)}
+    .bt{background:var(--mist);color:var(--moss);font-size:10.5px}
+    .av{width:28px;height:28px;border-radius:50%;background:var(--mist);color:var(--moss);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+    .tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:10.5px;font-weight:600;background:var(--mist);color:var(--moss)}
+
+    .fg{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .ff{grid-column:1/-1}
+    .fsec{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--fog);display:flex;align-items:center;gap:8px;margin:16px 0 10px;grid-column:1/-1}
+    .fsec::after{content:'';flex:1;height:1px;background:var(--cloud)}
+    .fl{display:block;font-size:10.5px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;color:var(--slate);margin-bottom:5px}
+    .fi,.fse,.fta{width:100%;border:1.5px solid var(--silver);border-radius:var(--r-sm);padding:10px 12px;font-family:var(--font);font-size:13.5px;color:var(--ink);background:var(--snow);outline:none;transition:border-color .15s,box-shadow .15s}
+    .fi:focus,.fse:focus,.fta:focus{border-color:var(--moss);background:#fff;box-shadow:0 0 0 3px rgba(30,110,67,.1)}
+    .fse{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7e72' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center;background-color:var(--snow);padding-right:30px;cursor:pointer}
+    .fse:focus{background-color:#fff}
+    .fta{resize:vertical;min-height:88px;line-height:1.6}
+    .freq{color:var(--red);margin-left:1px}
+
+    .fbar{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+    .sw{position:relative}
+    .si2{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:13px;height:13px;stroke:var(--fog);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+    .sin{padding:8px 12px 8px 30px;border:1.5px solid var(--silver);border-radius:var(--r-sm);font-family:var(--font);font-size:13px;background:#fff;outline:none;transition:border-color .15s,box-shadow .15s;width:200px;color:var(--ink)}
+    .sin:focus{border-color:var(--moss);box-shadow:0 0 0 3px rgba(30,110,67,.08)}
+    .fsm{padding:8px 28px 8px 11px;border:1.5px solid var(--silver);border-radius:var(--r-sm);font-family:var(--font);font-size:12.5px;background:#fff;outline:none;color:var(--slate);transition:border-color .15s;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%236b7e72' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center}
+    .fsm:focus{border-color:var(--moss)}
+
+    .qr{display:flex;align-items:flex-start;gap:12px;padding:14px 18px;border-bottom:1px solid var(--cloud);transition:background .1s}
+    .qr:last-child{border-bottom:none}
+    .qr:hover{background:var(--foam)}
+    .qr.uh{border-left:3px solid var(--red)}
+    .qr.um{border-left:3px solid var(--amber)}
+    .qr.ul{border-left:3px solid var(--sage)}
+    .qav{width:36px;height:36px;border-radius:50%;background:var(--mist);color:var(--moss);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;margin-top:2px}
+    .qi{flex:1;min-width:0}
+    .qn{font-size:13.5px;font-weight:600;color:var(--ink);display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+    .qid{font-size:11px;color:var(--fog);font-family:var(--mono);font-weight:400}
+    .qmeta{font-size:11.5px;color:var(--stone);margin-top:2px}
+    .qcon{font-size:12px;color:var(--slate);margin-top:4px;line-height:1.5}
+    .qtags{display:flex;gap:5px;margin-top:7px;flex-wrap:wrap;align-items:center}
+    .qacts{display:flex;gap:6px;flex-shrink:0;align-items:flex-start;margin-top:2px}
+
+    .cal-center{display:flex;justify-content:center;align-items:flex-start}
+    .cal-wrap{display:grid;grid-template-columns:280px 200px;gap:14px;align-items:start;width:100%;max-width:500px}
+    .cg{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+    .cdh{text-align:center;font-size:9px;font-weight:700;color:var(--fog);padding:3px 1px;letter-spacing:.3px}
+    .cd{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:var(--r-xs);font-size:10.5px;color:var(--slate);transition:background .1s;cursor:default;position:relative;min-height:0}
+    .cd:hover{background:var(--mist)}
+    .cd.today{background:var(--moss);color:#fff;font-weight:600}
+    .cd.ev{background:var(--mist);color:var(--forest);font-weight:600}
+    .cd.ev::after{content:'';position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:3px;height:3px;border-radius:50%;background:var(--moss)}
+    .cd.today.ev::after{background:rgba(255,255,255,.7)}
+    .cd.oth{color:var(--silver)}
+    .cal-sidebar{display:flex;flex-direction:column;gap:10px}
+    .sc{padding:7px 9px;background:var(--foam);border-radius:var(--r-sm);margin-bottom:5px;border-left:3px solid var(--moss)}
+    .scn{font-size:11.5px;font-weight:600;color:var(--forest)}
+    .scs{font-size:10px;color:var(--stone);margin-top:2px}
+
+    .lr{display:flex;align-items:center;gap:12px;padding:13px 18px;border-bottom:1px solid var(--cloud)}
+    .lr:last-child{border-bottom:none}
+    .lr:hover{background:var(--foam)}
+    .lic{width:36px;height:36px;border-radius:var(--r-sm);background:var(--mist);color:var(--moss);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .lic svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+
+    .rb{margin-bottom:11px}
+    .rbl{display:flex;justify-content:space-between;font-size:12px;color:var(--slate);margin-bottom:5px}
+    .rbt{background:var(--cloud);border-radius:4px;height:7px;overflow:hidden}
+    .rbf{height:100%;border-radius:4px;transition:width .7s var(--ease)}
+
+    .alert{display:none;padding:11px 14px;border-radius:var(--r-sm);font-size:13px;font-weight:500;align-items:center;gap:8px;margin-top:14px}
+    .alert.show{display:flex}
+    .alert svg{flex-shrink:0}
+    .aok{background:var(--mist);border:1px solid var(--mint);color:var(--forest)}
+    .aer{background:var(--red-lt);border:1px solid #f5c0c0;color:var(--red)}
+
+    .empty{text-align:center;padding:44px 20px}
+    .eico{font-size:30px;margin-bottom:10px}
+    .empty h3{font-size:14px;font-weight:500;color:var(--stone);margin-bottom:3px}
+    .empty p{font-size:12px;color:var(--fog)}
+
+    .dov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.42);z-index:60}
+    .dov.on{display:block}
+    .drawer{position:fixed;top:0;right:0;width:min(480px,100vw);height:100dvh;height:100vh;background:#fff;overflow-y:auto;z-index:61;
+      box-shadow:-6px 0 40px rgba(0,0,0,.18);transform:translateX(100%);transition:transform .26s var(--ease);
+      -webkit-overflow-scrolling:touch}
+    .drawer.on{transform:translateX(0)}
+    .dh{padding:20px 22px;border-bottom:1px solid var(--cloud);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;position:sticky;top:0;background:#fff;z-index:1}
+    .db{padding:22px}
+    .dfield{margin-bottom:16px}
+    .dfield label{font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--fog);display:block;margin-bottom:4px}
+    .dfield p{font-size:13.5px;color:var(--ink);line-height:1.6}
+
+    #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+      background:var(--forest);color:#fff;padding:11px 18px;border-radius:var(--r);
+      font-size:13px;font-weight:500;box-shadow:var(--sh-lg);z-index:200;
+      max-width:calc(100vw - 40px);text-align:center;display:none;transition:opacity .3s}
+
+    @media(max-width:900px){
+      :root{--sb-w:200px}
+      .stats{grid-template-columns:repeat(2,1fr)}
+      .cal-wrap{grid-template-columns:1fr;max-width:320px}
+      .cal-sidebar{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    }
+    @media(max-width:680px){
+      .login-box{grid-template-columns:1fr;max-width:400px}
+      .lp{display:none}
+      .sidebar{position:fixed;top:0;left:0;transform:translateX(-100%);box-shadow:var(--sh-lg)}
+      .sidebar.open{transform:translateX(0)}
+      .sb-close{display:flex}
+      .mob-btn{display:flex}
+      .stats{grid-template-columns:repeat(2,1fr);gap:10px}
+      .pi{padding:14px}
+      .ph h1{font-size:22px}
+      .fg{grid-template-columns:1fr}
+      .ff{grid-column:1}
+      .fsec{grid-column:1}
+      .qacts{flex-direction:column;gap:4px}
+      .fbar{gap:5px}
+      .sin{width:150px}
+      .fsm{font-size:12px}
+      .cal-wrap{grid-template-columns:1fr;max-width:300px}
+      .cal-sidebar{grid-template-columns:1fr}
+      .topbar{padding:0 12px}
+      .tb-right{gap:4px}
+    }
+    @media(max-width:480px){
+      .stats{grid-template-columns:1fr 1fr;gap:8px}
+      .stat{padding:14px}
+      .sn{font-size:26px}
+      .sin{width:100%;max-width:180px}
+      .fbar{flex-direction:column;align-items:stretch}
+      .fbar .sw,.fbar .fsm{width:100%}
+      .sin{width:100%}
+      .tb-right{flex-wrap:wrap}
+      .cal-wrap{max-width:100%}
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+
+<div id="screen-login" class="screen">
+  <div class="login-box">
+    <div class="lp">
+      <div>
+        <div class="lp-logo"><div class="lp-mark">iC</div><span class="lp-name">iCARE</span></div>
+        <div class="lp-hl">Student<br>Guidance<br><em></em></div>
+        <p class="lp-desc">Integrated referral and scheduling system of Benguet State University's Guidance and Counseling Unit.</p>
+        <div class="lp-feats">
+          <div class="lp-feat"><span class="lp-dot"></span>Centralized referral intake</div>
+          <div class="lp-feat"><span class="lp-dot"></span>Smart appointment scheduling</div>
+          <div class="lp-feat"><span class="lp-dot"></span>College office coordination</div>
+          <div class="lp-feat"><span class="lp-dot"></span>Real-time analytics &amp; reports</div>
+          <div class="lp-feat"><span class="lp-dot"></span>Secure role-based access</div>
+        </div>
+      </div>
+      <p class="lp-foot">Benguet State University · OSS GCU</p>
+    </div>
+    <div class="lf">
+      <h2>Sign in</h2>
+      <p class="sub">Access the iCARE referral system</p>
+      <div class="lf-field">
+        <label class="lf-lbl">Your Role</label>
+        <select id="login-role" class="lf-sel">
+          <option value="instructor">Instructor / Faculty</option>
+          <option value="staff">GCU Staff / Counselor</option>
+          <option value="admin">Administrator</option>
+        </select>
+      </div>
+      <div class="lf-field">
+        <label class="lf-lbl">Email or Employee ID</label>
+        <input type="text" class="lf-in" value="instructor@bsu.edu.ph" placeholder="e.g. instructor@bsu.edu.ph">
+      </div>
+      <div class="lf-field">
+        <label class="lf-lbl">Password</label>
+        <input type="password" class="lf-in" value="password" placeholder="••••••••">
+      </div>
+      <button class="btn-signin" onclick="doLogin()">
+        Sign In
+        <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+      <p class="login-note">© 2026 Benguet State University · iCARE System</p>
+    </div>
+  </div>
+</div>
+
+<div id="screen-app" class="screen">
+  <div class="mob-overlay" id="mob-ov" onclick="closeSB()"></div>
+
+  <aside class="sidebar" id="sb">
+    <div class="sb-head">
+      <div class="sb-mark">iC</div>
+      <div><div class="sb-brand">iCARE</div><div class="sb-sub">BSU · GCU Portal</div></div>
+      <button class="sb-close" onclick="closeSB()" aria-label="Close">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-sec">Overview</div>
+      <button class="nb active" data-p="dashboard" onclick="go('dashboard')">
+        <svg class="ni" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>
+        <span>Dashboard</span>
+      </button>
+      <div class="sb-sec">Referrals</div>
+      <button class="nb" data-p="referral" onclick="go('referral')" id="nav-ref">
+        <svg class="ni" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+        <span>New Referral</span>
+      </button>
+      <button class="nb" data-p="queue" onclick="go('queue')">
+        <svg class="ni" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        <span>Referral Queue</span>
+        <span class="nb-badge" id="qbadge">0</span>
+      </button>
+      <div class="sb-sec">Schedule</div>
+      <button class="nb" data-p="calendar" onclick="go('calendar')">
+        <svg class="ni" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <span>Calendar</span>
+      </button>
+      <div class="sb-sec adm" id="asec" style="display:none">Administration</div>
+      <button class="nb adm" data-p="colleges" onclick="go('colleges')" style="display:none">
+        <svg class="ni" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>College Offices</span>
+      </button>
+      <button class="nb adm" data-p="users" onclick="go('users')" style="display:none">
+        <svg class="ni" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span>Users</span>
+      </button>
+      <button class="nb adm" data-p="reports" onclick="go('reports')" style="display:none">
+        <svg class="ni" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        <span>Reports</span>
+      </button>
+    </nav>
+    <div class="sb-foot">
+      <div class="u-row">
+        <div class="u-av" id="uav">IN</div>
+        <div style="flex:1;min-width:0"><div class="u-nm" id="unm">Instructor</div><div class="u-rl" id="url">Faculty</div></div>
+        <button class="logbtn" onclick="doLogout()" title="Sign out">
+          <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+
+    <div id="pg-dashboard" class="page active">
+      <div class="topbar">
+        <button class="mob-btn" onclick="openSB()"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+        <div class="breadcrumb">iCARE / <strong>Dashboard</strong></div>
+        <div class="tb-right">
+          <button class="btn btn-p btn-sm" id="btn-nref" onclick="go('referral')">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            New Referral
+          </button>
+        </div>
+      </div>
+      <div class="content"><div class="pi">
+        <div class="ph"><h1 id="greeting">Instructor</h1><p>Here's a summary of your referral activity.</p></div>
+        <div class="stats">
+          <div class="stat"><div class="st"><div class="si" style="background:var(--mist)"><svg style="color:var(--moss)" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><span class="sp">All</span></div><div class="sn" id="stot">0</div><div class="sl">Total Referrals</div></div>
+          <div class="stat"><div class="st"><div class="si" style="background:var(--amber-lt)"><svg style="color:var(--amber)" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><span class="sp">Pending</span></div><div class="sn" id="spend">0</div><div class="sl">Awaiting Review</div></div>
+          <div class="stat"><div class="st"><div class="si" style="background:var(--blue-lt)"><svg style="color:var(--blue)" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><span class="sp">Active</span></div><div class="sn" id="ssch">0</div><div class="sl">Scheduled</div></div>
+          <div class="stat"><div class="st"><div class="si" style="background:var(--mist)"><svg style="color:var(--moss)" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><span class="sp" id="srate">—</span></div><div class="sn" id="scom">0</div><div class="sl">Completed</div></div>
+        </div>
+        <div class="card">
+          <div class="ch"><span class="ct">Recent Referrals</span><button class="btn btn-g btn-sm" onclick="go('queue')">View All →</button></div>
+          <div class="ts"><table>
+            <thead><tr><th>Student</th><th>Service</th><th>College</th><th>Urgency</th><th>Status</th><th>Date</th><th></th></tr></thead>
+            <tbody id="dtbody"><tr><td colspan="7"><div class="empty"><div class="eico">📋</div><h3>No referrals yet</h3><p>Submit your first referral to get started</p></div></td></tr></tbody>
+          </table></div>
+        </div>
+      </div></div>
+    </div>
+
+    <div id="pg-referral" class="page">
+      <div class="topbar">
+        <button class="mob-btn" onclick="openSB()"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+        <div class="breadcrumb">iCARE / <strong>New Referral</strong></div>
+      </div>
+      <div class="content"><div class="pi">
+        <div class="ph" style="text-align:center"><h1>New Referral</h1><p>Submit a student referral to the Guidance and Counseling Unit.</p></div>
+        <div style="display:flex;justify-content:center">
+        <div class="card" style="max-width:640px;width:100%">
+          <div class="ch"><span class="ct">Referral Submission Form</span><span style="font-size:11px;color:var(--fog)">Fields marked <span style="color:var(--red)">*</span> required</span></div>
+          <div class="cb">
+            <div class="fg">
+              <div class="fsec">Student Information</div>
+              <div><label class="fl">Student ID <span class="freq">*</span></label><input type="text" id="fsid" class="fi" placeholder="e.g. 2023-12345" autocomplete="off"></div>
+              <div><label class="fl">Full Name <span class="freq">*</span></label><input type="text" id="fname" class="fi" placeholder="Last, First Middle" autocomplete="off"></div>
+              <div><label class="fl">Program</label><select id="fprog" class="fse"><option>BS Information Technology</option><option>BS Computer Science</option><option>BS Business Administration</option><option>BS Education</option><option>BS Agriculture</option><option>BS Nursing</option></select></div>
+              <div><label class="fl">Year Level</label><select id="fyear" class="fse"><option>1st Year</option><option>2nd Year</option><option>3rd Year</option><option>4th Year</option></select></div>
+              <div class="fsec">Referral Details</div>
+              <div><label class="fl">College <span class="freq">*</span></label><select id="fcol" class="fse"><option value="CIS">College of Information Sciences (CIS)</option><option value="CAS">College of Arts and Sciences (CAS)</option><option value="CEA">College of Engineering &amp; Architecture (CEA)</option><option value="CB">College of Business (CB)</option><option value="CED">College of Education (CED)</option><option value="CA">College of Agriculture (CA)</option></select></div>
+              <div><label class="fl">Service Type <span class="freq">*</span></label><select id="fsvc" class="fse"><option>Counseling</option><option>Academic Coaching</option><option>Consultation</option><option>Psychological Testing</option><option>Career Guidance</option></select></div>
+              <div><label class="fl">Urgency Level <span class="freq">*</span></label><select id="furg" class="fse"><option value="low">🟢 Low — can wait up to 2 weeks</option><option value="medium">🟡 Medium — schedule this week</option><option value="high">🔴 High — contact student ASAP</option></select></div>
+              <div><label class="fl">Preferred Date</label><input type="date" id="fdate" class="fi"></div>
+              <div class="ff"><label class="fl">Concern / Reason <span class="freq">*</span></label><textarea id="fcon" class="fta" placeholder="Describe the student's concern in detail..."></textarea></div>
+            </div>
+            <div style="display:flex;gap:9px;margin-top:10px;flex-wrap:wrap">
+              <button class="btn btn-p" onclick="submitRef()"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Submit Referral</button>
+              <button class="btn btn-o" onclick="go('dashboard')">Cancel</button>
+            </div>
+            <div class="alert aok" id="ref-ok"><svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><polyline points="20 6 9 17 4 12"/></svg>Referral submitted! College Office will be notified.</div>
+            <div class="alert aer" id="ref-er"><svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span id="ermsg">Please fill in all required fields.</span></div>
+          </div>
+        </div>
+        </div>
+      </div></div>
+    </div>
+
+    <div id="pg-queue" class="page">
+      <div class="topbar">
+        <button class="mob-btn" onclick="openSB()"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+        <div class="breadcrumb">iCARE / <strong>Referral Queue</strong></div>
+        <div class="tb-right">
+          <div class="fbar">
+            <div class="sw"><svg class="si2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" class="sin" id="qsearch" placeholder="Search…" oninput="renderQ()"></div>
+            <select class="fsm" id="qurg" onchange="renderQ()"><option value="all">All Urgency</option><option value="high">🔴 High</option><option value="medium">🟡 Medium</option><option value="low">🟢 Low</option></select>
+            <select class="fsm" id="qsta" onchange="renderQ()"><option value="active">Active</option><option value="all">All</option></select>
+          </div>
+        </div>
+      </div>
+      <div class="content"><div class="pi">
+        <div class="ph"><h1>Referral Queue</h1><p>Review, assign, and track incoming referrals.</p></div>
+        <div class="card"><div id="qlist"></div></div>
+      </div></div>
+    </div>
+
+    <div id="pg-calendar" class="page">
+      <div class="topbar">
+        <button class="mob-btn" onclick="openSB()"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+        <div class="breadcrumb">iCARE / <strong>Calendar</strong></div>
+      </div>
+      <div class="content"><div class="pi">
+        <div class="ph"><h1>Appointment Calendar</h1><p>View and manage scheduled counseling sessions.</p></div>
+        <div class="cal-center">
+          <div class="cal-wrap">
+            <div class="card">
+              <div class="ch"><span class="ct" id="callbl">March 2026</span><div style="display:flex;gap:5px"><button class="btn btn-o btn-sm" onclick="calPrev()">‹</button><button class="btn btn-o btn-sm" onclick="calNext()">›</button></div></div>
+              <div class="cb" style="padding:10px">
+                <div class="cg" style="margin-bottom:3px"><div class="cdh">M</div><div class="cdh">T</div><div class="cdh">W</div><div class="cdh">T</div><div class="cdh">F</div><div class="cdh">S</div><div class="cdh">S</div></div>
+                <div class="cg" id="caldays"></div>
+              </div>
+            </div>
+            <div class="cal-sidebar">
+              <div class="card"><div class="ch"><span class="ct">Today</span></div><div style="padding:10px" id="tsess"></div></div>
+              <div class="card"><div class="ch"><span class="ct">Upcoming</span></div><div style="padding:10px" id="wsess"></div></div>
+            </div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <div id="pg-colleges" class="page">
+      <div class="topbar">
+        <button class="mob-btn" onclick="openSB()"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+        <div class="breadcrumb">iCARE / <strong>College Offices</strong></div>
+        <div class="tb-right"><button class="btn btn-p btn-sm">+ Add College</button></div>
+      </div>
+      <div class="content"><div class="pi">
+        <div class="ph"><h1>College Offices</h1><p>Dean's Secretary contacts for referral coordination.</p></div>
+        <div class="card" id="col-card"></div>
+      </div></div>
+    </div>
+
+    <div id="pg-users" class="page">
+      <div class="topbar">
+        <button class="mob-btn" onclick="openSB()"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+        <div class="breadcrumb">iCARE / <strong>User Management</strong></div>
+        <div class="tb-right"><button class="btn btn-p btn-sm">+ Add User</button></div>
+      </div>
+      <div class="content"><div class="pi">
+        <div class="ph"><h1>User Management</h1><p>Manage instructor and GCU staff accounts.</p></div>
+        <div class="card" id="usr-card"></div>
+      </div></div>
+    </div>
+
+    <div id="pg-reports" class="page">
+      <div class="topbar">
+        <button class="mob-btn" onclick="openSB()"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+        <div class="breadcrumb">iCARE / <strong>Reports</strong></div>
+        <div class="tb-right"><button class="btn btn-o btn-sm"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button></div>
+      </div>
+      <div class="content"><div class="pi">
+        <div class="ph"><h1>Analytics &amp; Reports</h1><p>Referral volume, urgency distribution, and stats.</p></div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px">
+          <div class="card"><div class="ch"><span class="ct">Monthly Volume</span></div><div class="cb" id="rmon"></div></div>
+          <div class="card"><div class="ch"><span class="ct">By Urgency</span></div><div class="cb" id="rurg"></div></div>
+          <div class="card"><div class="ch"><span class="ct">By Service Type</span></div><div class="cb" id="rsvc"></div></div>
+          <div class="card"><div class="ch"><span class="ct">Completion Rate</span></div><div class="cb" id="rcomp"></div></div>
+        </div>
+      </div></div>
+    </div>
+
+  </div>
+</div>
+
+<div class="dov" id="dov" onclick="closeD()"></div>
+<div class="drawer" id="dw">
+  <div class="dh">
+    <div><h2 style="font-family:var(--serif);font-style:italic;font-size:20px;color:var(--forest)">Referral Detail</h2><p style="font-size:12px;color:var(--stone);margin-top:2px" id="dsub">—</p></div>
+    <button class="btn btn-g btn-sm" onclick="closeD()">✕ Close</button>
+  </div>
+  <div class="db" id="dbody"></div>
+</div>
+
+<div id="toast"></div>
+</div>
+
+<script>
+let role='instructor', refs=[], calY=2026, calM=2;
+
+const colleges=[
+  {abbr:'CIS',name:'College of Information Sciences',sec:'Ms. Rosario Bautista',email:'cis.secretary@bsu.edu.ph',phone:'(074) 422-2401'},
+  {abbr:'CAS',name:'College of Arts and Sciences',sec:'Ms. Lorna Dacumos',email:'cas.secretary@bsu.edu.ph',phone:'(074) 422-2402'},
+  {abbr:'CEA',name:'College of Engineering & Architecture',sec:'Ms. Elvira Mangsat',email:'cea.secretary@bsu.edu.ph',phone:'(074) 422-2403'},
+  {abbr:'CB',name:'College of Business',sec:'Ms. Cynthia Padilla',email:'cb.secretary@bsu.edu.ph',phone:'(074) 422-2404'},
+  {abbr:'CED',name:'College of Education',sec:'Ms. Nora Corpuz',email:'ced.secretary@bsu.edu.ph',phone:'(074) 422-2405'},
+  {abbr:'CA',name:'College of Agriculture',sec:'Ms. Rowena Dumaguit',email:'ca.secretary@bsu.edu.ph',phone:'(074) 422-2406'},
+];
+const userList=[
+  {name:'Prof. Eduardo Santos',role:'Instructor',dept:'BSIT',email:'e.santos@bsu.edu.ph',status:'active'},
+  {name:'Dr. Maria Fernandez',role:'GCU Counselor',dept:'Guidance Unit',email:'m.fernandez@bsu.edu.ph',status:'active'},
+  {name:'Ms. Anna Cruz',role:'GCU Staff',dept:'Guidance Unit',email:'a.cruz@bsu.edu.ph',status:'active'},
+  {name:'Prof. Jake Reyes',role:'Instructor',dept:'BSCS',email:'j.reyes@bsu.edu.ph',status:'inactive'},
+];
+
+function seed(){
+  refs=[
+    {id:1,sid:'2023-23345',name:'Nabua, Adrian',prog:'BSIT',year:'3rd Year',col:'CIS',svc:'Counseling',urg:'high',concern:'Experiencing severe anxiety related to upcoming board exams and significant family pressure. Has been missing classes.',status:'scheduled',date:'2026-03-27'},
+    {id:2,sid:'2030-30346',name:'Nabua, Adrian Jr.',prog:'BSCS',year:'2nd Year',col:'CAS',svc:'Academic Coaching',urg:'medium',concern:'Struggling with data structures and algorithms. Failing quizzes and at risk of failing the course.',status:'reviewed',date:'2030-03-25'},
+    {id:3,sid:'2030-30347',name:'Nabua, Adrian Jr. 2nd',prog:'BSBA',year:'1st Year',col:'CB',svc:'Career Guidance',urg:'low',concern:'Unsure about career path and is considering shifting to a different program.',status:'completed',date:'2030-08-10'},
+    {id:4,sid:'2030-30348',name:'Nabua, Adrian Jr. 3rd',prog:'BSED',year:'4th Year',col:'CED',svc:'Counseling',urg:'medium',concern:'Difficulty managing student-teaching load alongside personal obligations. Shows signs of burnout.',status:'pending',date:'2030-11-01'},
+  ];
+}
+
+function doLogin(){
+  role=document.getElementById('login-role').value;
+  const m={instructor:{n:'Prof. Santos',l:'Faculty',i:'PS'},staff:{n:'Ms. Cruz',l:'GCU Staff',i:'AC'},admin:{n:'Dr. Fernandez',l:'Administrator',i:'DF'}};
+  const u=m[role];
+  $('uav',u.i); $('unm',u.n); $('url',u.l);
+  $('greeting',u.n.split(' ').pop());
+  const isAdm=role==='admin';
+  document.querySelectorAll('.adm').forEach(el=>el.style.display=isAdm?'flex':'none');
+  document.getElementById('asec').style.display=isAdm?'block':'none';
+  const hide=role==='staff';
+  document.getElementById('nav-ref').style.display=hide?'none':'flex';
+  document.getElementById('btn-nref').style.display=hide?'none':'inline-flex';
+  showSc('app');
+  go(role==='staff'?'queue':'dashboard');
+  refresh();
+}
+function doLogout(){showSc('login')}
+
+function openSB(){document.getElementById('sb').classList.add('open');document.getElementById('mob-ov').classList.add('show');document.body.style.overflow='hidden'}
+function closeSB(){document.getElementById('sb').classList.remove('open');document.getElementById('mob-ov').classList.remove('show');document.body.style.overflow=''}
+
+function showSc(id){
+  document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active');s.style.display='none'});
+  const el=document.getElementById('screen-'+id);
+  el.classList.add('active');el.style.display='flex';
+}
+
+function go(id){
+  closeSB();
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const pg=document.getElementById('pg-'+id);
+  if(pg)pg.classList.add('active');
+  document.querySelectorAll('.nb').forEach(n=>n.classList.remove('active'));
+  const nb=document.querySelector('.nb[data-p="'+id+'"]');
+  if(nb)nb.classList.add('active');
+  if(id==='queue')renderQ();
+  if(id==='calendar')renderCal();
+  if(id==='colleges')renderCols();
+  if(id==='users')renderUsers();
+  if(id==='reports')renderReports();
+}
+
+function $(id,v){const e=document.getElementById(id);if(e)e.textContent=v}
+function fmtD(d){return new Date(d+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
+function ub(u){const c={high:'bh',medium:'bm',low:'bl'};return`<span class="badge ${c[u]||'br'}">${u}</span>`}
+function sb2(s){const c={pending:'bp',scheduled:'bsc',completed:'bco',reviewed:'br'};return`<span class="badge ${c[s]||'br'}">${s}</span>`}
+
+function refresh(){updateStats();updateDash();updateBadge()}
+function updateStats(){
+  const tot=refs.length,pend=refs.filter(r=>r.status==='pending').length;
+  const sch=refs.filter(r=>r.status==='scheduled').length,comp=refs.filter(r=>r.status==='completed').length;
+  $('stot',tot);$('spend',pend);$('ssch',sch);$('scom',comp);
+  $('srate',tot?Math.round(comp/tot*100)+'%':'—');
+}
+function updateBadge(){
+  const n=refs.filter(r=>r.status==='pending').length;
+  const b=document.getElementById('qbadge');
+  if(b){b.textContent=n;b.classList.toggle('on',n>0)}
+}
+function updateDash(){
+  const tb=document.getElementById('dtbody');if(!tb)return;
+  if(!refs.length){tb.innerHTML='<tr><td colspan="7"><div class="empty"><div class="eico">📋</div><h3>No referrals yet</h3><p>Submit your first referral to get started</p></div></td></tr>';return}
+  tb.innerHTML=refs.slice(0,5).map(r=>`
+    <tr>
+      <td><div style="display:flex;align-items:center;gap:8px"><div class="av">${r.name.charAt(0)}</div><div><div style="font-weight:500;font-size:13px;color:var(--ink)">${r.name}</div><div style="font-size:10.5px;color:var(--fog);font-family:var(--mono)">${r.sid}</div></div></div></td>
+      <td style="font-size:12.5px">${r.svc}</td><td><span class="tag">${r.col}</span></td>
+      <td>${ub(r.urg)}</td><td>${sb2(r.status)}</td>
+      <td style="font-size:12px;color:var(--fog)">${fmtD(r.date)}</td>
+      <td><button class="btn btn-g btn-sm" onclick="openD(${r.id})">View</button></td>
+    </tr>`).join('');
+}
+
+function renderQ(){
+  const el=document.getElementById('qlist');if(!el)return;
+  const q=(document.getElementById('qsearch')?.value||'').toLowerCase();
+  const fu=document.getElementById('qurg')?.value||'all';
+  const fs=document.getElementById('qsta')?.value||'active';
+  let list=[...refs];
+  if(fs==='active')list=list.filter(r=>r.status!=='completed');
+  if(fu!=='all')list=list.filter(r=>r.urg===fu);
+  if(q)list=list.filter(r=>r.name.toLowerCase().includes(q)||r.sid.includes(q));
+  const ord={high:0,medium:1,low:2};
+  list.sort((a,b)=>(ord[a.urg]||0)-(ord[b.urg]||0));
+  if(!list.length){el.innerHTML='<div class="empty"><div class="eico">📭</div><h3>No referrals found</h3><p>Try adjusting your filters</p></div>';return}
+  el.innerHTML=list.map(r=>`
+    <div class="qr u${r.urg.charAt(0)}">
+      <div class="qav">${r.name.charAt(0)}</div>
+      <div class="qi">
+        <div class="qn">${r.name}<span class="qid">${r.sid}</span></div>
+        <div class="qmeta">${r.col} · ${r.year} · ${r.prog}</div>
+        <div class="qcon">${r.concern.substring(0,110)}…</div>
+        <div class="qtags">${ub(r.urg)} ${sb2(r.status)} <span class="badge bt">${r.svc}</span> <span style="font-size:11px;color:var(--fog)">${fmtD(r.date)}</span></div>
+      </div>
+      <div class="qacts">
+        <button class="btn btn-o btn-sm" onclick="openD(${r.id})">View</button>
+        ${r.status==='pending'||r.status==='reviewed'?`<button class="btn btn-p btn-sm" onclick="assignR(${r.id})">Assign</button>`:''}
+        ${r.status==='scheduled'?`<button class="btn btn-p btn-sm" onclick="doneR(${r.id})">Done</button>`:''}
+      </div>
+    </div>`).join('');
+}
+function assignR(id){const r=refs.find(x=>x.id===id);if(!r)return;r.status='scheduled';refresh();renderQ();toast('✅ Assigned: '+r.name+' — '+r.col+" Dean's Secretary notified.")}
+function doneR(id){const r=refs.find(x=>x.id===id);if(!r)return;r.status='completed';refresh();renderQ();toast('✅ Completed: '+r.name)}
+
+function submitRef(){
+  const sid=document.getElementById('fsid').value.trim();
+  const nm=document.getElementById('fname').value.trim();
+  const con=document.getElementById('fcon').value.trim();
+  const er=document.getElementById('ref-er'),ok=document.getElementById('ref-ok');
+  er.classList.remove('show');ok.classList.remove('show');
+  if(!sid||!nm||!con){document.getElementById('ermsg').textContent='Please fill in Student ID, Full Name, and Concern.';er.classList.add('show');return}
+  const cv=document.getElementById('fcol').value;
+  const ca=cv.match(/\((\w+)\)/)?.[1]||'CIS';
+  refs.unshift({id:Date.now(),sid,name:nm,prog:document.getElementById('fprog').value,year:document.getElementById('fyear').value,col:ca,svc:document.getElementById('fsvc').value,urg:document.getElementById('furg').value,concern:con,status:'pending',date:document.getElementById('fdate').value||new Date().toISOString().split('T')[0]});
+  refresh();ok.classList.add('show');
+  ['fsid','fname','fcon','fdate'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''});
+  setTimeout(()=>{ok.classList.remove('show');go('dashboard')},1800);
+}
+
+function openD(id){
+  const r=refs.find(x=>x.id===id);if(!r)return;
+  $('dsub',r.name+' · '+r.sid);
+  document.getElementById('dbody').innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <div class="dfield"><label>Student ID</label><p style="font-family:var(--mono)">${r.sid}</p></div>
+      <div class="dfield"><label>Full Name</label><p>${r.name}</p></div>
+      <div class="dfield"><label>Program</label><p>${r.prog}</p></div>
+      <div class="dfield"><label>Year Level</label><p>${r.year}</p></div>
+      <div class="dfield"><label>College</label><p>${r.col}</p></div>
+      <div class="dfield"><label>Service Type</label><p>${r.svc}</p></div>
+      <div class="dfield"><label>Urgency</label><p>${ub(r.urg)}</p></div>
+      <div class="dfield"><label>Status</label><p>${sb2(r.status)}</p></div>
+      <div class="dfield" style="grid-column:1/-1"><label>Date Submitted</label><p>${fmtD(r.date)}</p></div>
+      <div class="dfield" style="grid-column:1/-1"><label>Concern</label><p style="background:var(--foam);padding:13px;border-radius:var(--r-sm);line-height:1.7;border:1px solid var(--cloud)">${r.concern}</p></div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:18px;padding-top:18px;border-top:1px solid var(--cloud)">
+      ${r.status==='pending'||r.status==='reviewed'?`<button class="btn btn-p" onclick="assignR(${r.id});closeD()">Assign to Counselor</button>`:''}
+      ${r.status==='scheduled'?`<button class="btn btn-p" onclick="doneR(${r.id});closeD()">Mark as Completed</button>`:''}
+      <button class="btn btn-o" onclick="closeD()">Close</button>
+    </div>`;
+  document.getElementById('dov').classList.add('on');
+  document.getElementById('dw').classList.add('on');
+  document.body.style.overflow='hidden';
+}
+function closeD(){
+  document.getElementById('dov').classList.remove('on');
+  document.getElementById('dw').classList.remove('on');
+  document.body.style.overflow='';
+}
+
+function renderCal(){
+  const lbl=document.getElementById('callbl'),grid=document.getElementById('caldays');
+  const today=new Date();
+  const d=new Date(calY,calM,1);
+  if(lbl)lbl.textContent=d.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+  if(!grid)return;
+  const first=(d.getDay()+6)%7,dim=new Date(calY,calM+1,0).getDate(),prev=new Date(calY,calM,0).getDate();
+  const evts=refs.filter(r=>r.status==='scheduled').map(r=>r.date?.split('T')[0]);
+  let h='';
+  for(let i=0;i<first;i++)h+=`<div class="cd oth">${prev-first+i+1}</div>`;
+  for(let d2=1;d2<=dim;d2++){
+    const ds=`${calY}-${String(calM+1).padStart(2,'0')}-${String(d2).padStart(2,'0')}`;
+    const it=today.getFullYear()===calY&&today.getMonth()===calM&&today.getDate()===d2;
+    const he=evts.includes(ds);
+    h+=`<div class="cd${it?' today':''}${he?' ev':''}">${d2}</div>`;
+  }
+  const rem=(7-(first+dim)%7)%7;
+  for(let i=1;i<=rem;i++)h+=`<div class="cd oth">${i}</div>`;
+  grid.innerHTML=h;
+  const tStr=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+  const ts=refs.filter(r=>r.date===tStr&&r.status==='scheduled');
+  const tEl=document.getElementById('tsess');
+  if(tEl)tEl.innerHTML=ts.length?ts.map(r=>`<div class="sc"><div class="scn">${r.name}</div><div class="scs">${r.svc} · ${r.col}</div></div>`).join(''):'<p style="font-size:12px;color:var(--fog);text-align:center;padding:8px 0">No sessions today</p>';
+  const up=refs.filter(r=>r.status==='scheduled'&&r.date!==tStr).slice(0,4);
+  const wEl=document.getElementById('wsess');
+  if(wEl)wEl.innerHTML=up.length?up.map(r=>`<div class="sc" style="border-color:var(--sage)"><div class="scn">${r.name}</div><div class="scs">${r.svc} · ${fmtD(r.date)}</div></div>`).join(''):'<p style="font-size:12px;color:var(--fog);text-align:center;padding:8px 0">No upcoming sessions</p>';
+}
+function calPrev(){calM--;if(calM<0){calM=11;calY--}renderCal()}
+function calNext(){calM++;if(calM>11){calM=0;calY++}renderCal()}
+
+function renderCols(){
+  const el=document.getElementById('col-card');if(!el)return;
+  el.innerHTML=colleges.map(c=>`
+    <div class="lr">
+      <div class="lic"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13.5px;font-weight:600;color:var(--ink)">${c.name}</div>
+        <div style="font-size:12px;color:var(--stone);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.sec} · <a href="mailto:${c.email}" style="color:var(--moss);text-decoration:none">${c.email}</a> · ${c.phone}</div>
+      </div>
+      <span class="badge bl" style="flex-shrink:0">${c.abbr}</span>
+      <button class="btn btn-g btn-sm" style="flex-shrink:0">Edit</button>
+    </div>`).join('');
+}
+
+function renderUsers(){
+  const el=document.getElementById('usr-card');if(!el)return;
+  el.innerHTML=userList.map(u=>`
+    <div class="lr">
+      <div class="lic" style="background:${u.role.includes('Instructor')?'var(--blue-lt)':'var(--mist)'};color:${u.role.includes('Instructor')?'var(--blue)':'var(--moss)'}">
+        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13.5px;font-weight:600;color:var(--ink)">${u.name}</div>
+        <div style="font-size:12px;color:var(--stone);margin-top:2px">${u.email} · ${u.dept}</div>
+      </div>
+      <span class="badge ${u.role.includes('Instructor')?'br':'bl'}" style="flex-shrink:0">${u.role}</span>
+      <span style="font-size:11.5px;color:${u.status==='active'?'var(--moss)':'var(--fog)'};font-weight:600;flex-shrink:0">${u.status}</span>
+      <div style="display:flex;gap:5px;flex-shrink:0"><button class="btn btn-g btn-sm">Edit</button><button class="btn btn-d btn-sm">Remove</button></div>
+    </div>`).join('');
+}
+
+function renderReports(){
+  const months=['Oct','Nov','Dec','Jan','Feb','Mar'],mV=[4,7,5,9,6,refs.length],mMax=Math.max(...mV,1);
+  const rmon=document.getElementById('rmon');
+  if(rmon)rmon.innerHTML=`<div style="display:flex;align-items:flex-end;gap:8px;height:120px;padding-top:8px">${months.map((m,i)=>`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px"><span style="font-size:11px;color:var(--slate);font-weight:500">${mV[i]}</span><div style="width:100%;background:${i===5?'var(--moss)':'var(--mint)'};border-radius:4px 4px 0 0;height:${Math.round(mV[i]/mMax*90)}px"></div><span style="font-size:10px;color:var(--fog)">${m}</span></div>`).join('')}</div><p style="font-size:11px;color:var(--fog);text-align:center;margin-top:8px">Last 6 months</p>`;
+  const ud=[{l:'High',v:refs.filter(r=>r.urg==='high').length,c:'var(--red)'},{l:'Medium',v:refs.filter(r=>r.urg==='medium').length,c:'var(--amber)'},{l:'Low',v:refs.filter(r=>r.urg==='low').length,c:'var(--moss)'}];
+  const um=Math.max(...ud.map(u=>u.v),1);
+  const rurg=document.getElementById('rurg');
+  if(rurg)rurg.innerHTML=ud.map(u=>`<div class="rb"><div class="rbl"><span>${u.l} Urgency</span><strong>${u.v}</strong></div><div class="rbt"><div class="rbf" style="width:${Math.round(u.v/um*100)}%;background:${u.c}"></div></div></div>`).join('');
+  const sd=['Counseling','Academic Coaching','Consultation','Career Guidance','Psychological Testing'].map(s=>({l:s,v:refs.filter(r=>r.svc===s).length}));
+  const sm=Math.max(...sd.map(s=>s.v),1);
+  const rsvc=document.getElementById('rsvc');
+  if(rsvc)rsvc.innerHTML=sd.map(s=>`<div class="rb"><div class="rbl"><span>${s.l}</span><strong>${s.v}</strong></div><div class="rbt"><div class="rbf" style="width:${Math.round(s.v/sm*100)}%;background:var(--fern)"></div></div></div>`).join('');
+  const tot=refs.length||1,comp=refs.filter(r=>r.status==='completed').length,pct=Math.round(comp/tot*100);
+  const rc=document.getElementById('rcomp');
+  if(rc)rc.innerHTML=`<div style="text-align:center;padding:14px 0 6px"><div style="font-family:var(--serif);font-style:italic;font-size:52px;color:var(--forest);line-height:1">${pct}%</div><div style="font-size:13px;color:var(--stone);margin-top:5px">completion rate</div><div style="font-size:12px;color:var(--fog);margin-top:2px">${comp} of ${tot} referrals</div></div><div style="background:var(--cloud);border-radius:6px;height:9px;overflow:hidden;margin-top:12px"><div style="background:linear-gradient(90deg,var(--moss),var(--fern));height:100%;width:${pct}%;border-radius:6px;transition:width .7s"></div></div><div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--fog);margin-top:5px"><span>0%</span><span>100%</span></div>`;
+}
+
+let _tt;
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.style.display='block';t.style.opacity='1';
+  clearTimeout(_tt);_tt=setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.style.display='none',300)},3000);
+}
+
+document.addEventListener('DOMContentLoaded',()=>{seed();showSc('login')});
+</script>
+</body>
+</html>
